@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=$HOME/.local/bin/launch_plasma_hud.sh
+Name=Launch Plasma HUD
+NoDisplay=true
+StartupNotify=false
+Type=Application
+X-KDE-GlobalAccel-CommandShortcut=true

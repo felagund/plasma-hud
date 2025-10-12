@@ -1,0 +1,10 @@
+[Unit]
+Description=Plasma HUD daemon
+
+[Service]
+Type=simple
+ExecStart= /usr/lib/plasma-hud/plasma-hud
+Restart=always
+
+[Install]
+WantedBy=default.target
