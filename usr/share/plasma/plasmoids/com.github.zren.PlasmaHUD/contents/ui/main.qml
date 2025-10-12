@@ -1,21 +1,22 @@
-import QtQuick 2.1
-import QtQuick.Layouts 1.1
-import QtQml.Models 2.2
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.components 2.0 as Plasma
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.taskmanager 0.1 as TaskManager
+import QtQuick
+import QtQuick.Layouts
+import org.kde.plasma.plasmoid
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasma5support as Plasma5Support
+import org.kde.taskmanager as TaskManager
 
-Item {
+PlasmoidItem {
     id: mainWidget
 
     Plasmoid.status: PlasmaCore.Types.HiddenStatus
 
-    PlasmaCore.DataSource {
+    Plasma5Support.DataSource {
         id: executable
         engine: "executable"
         connectedSources: []
-        onNewData: disconnectSource(sourceName)
+        onNewData: function(sourceName, data) {
+        disconnectSource(sourceName)
+        }
 
         function exec(cmd) {
             executable.connectSource(cmd)
