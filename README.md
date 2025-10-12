@@ -3,9 +3,9 @@
 Provides a way to run menubar commands through
 [`rofi`](https://github.com/davatorium/rofi), much like the Unity 7
 Heads-Up Display (HUD). `plasma-hud` was forked from [`mate-hud`](https://github.com/ubuntu-mate/mate-hud) which was based on
-[`i3-hud-menu`](https://github.com/RafaelBocquet/i3-hud-menu). There's also a [`gnome-hud`](https://github.com/hardpixel/gnome-hud).
+[`i3-hud-menu`](https://github.com/RafaelBocquet/i3-hud-menu). There's also a [`gnome-hud`](https://github.com/hardpixel/gnome-hud). This is a fork by uszie that works on Wayland. Update to Plasma 6 by Felagund.
 
-If you are interested in Unity's other feature, locally integrated menus in window titlebars, then you may want to check out the [Material KWin decoration](https://github.com/Zren/material-decoration) which has that feature.
+If you are interested in Unity's other feature, locally integrated menus in window titlebars, then that currently does not work on Wayland, but should be implemented soon: https://invent.kde.org/plasma/breeze/-/merge_requests/529 If you are still on X, you may want to check out the [Material KWin decoration](https://github.com/Zren/material-decoration) which has that feature.
 
 ![](https://i.imgur.com/M3YUONc.png)
 ![](https://i.imgur.com/sE0i8IE.png)
@@ -17,11 +17,7 @@ appmenu. So if you're trying to find that single filter in Gimp but
 can't remember which filter category it fits into or if you can't
 recall if preferences sits under File, Edit or Tools on your favourite
 browser, you can just search for it rather than hunting through the
-menus.
-
-## Install via Package Manager
-
-* AUR: https://aur.archlinux.org/packages/plasma-hud-git/
+menus. Note that on Wayland, this does not work with GTK applications and most browsers.
 
 ## Install via GitHub
 
@@ -30,76 +26,70 @@ menus.
 #### apt (Kubuntu / KDE Neon)
 
 ```
-sudo apt install rofi python3 python3-dbus python3-setproctitle python3-xlib gir1.2-gtk-3.0
-sudo apt install appmenu-qt # Qt4
-sudo apt install appmenu-gtk2-module appmenu-gtk3-module # Gtk2 / Gtk3
+sudo apt install rofi python3 python3-dbus python3-setproctitle python3-xlib
+sudo apt install appmenu-qt5 # Qt5
 ```
-Or use `unity-gtk2-module unity-gtk3-module` for Gtk2 / Gtk3.
-
 #### pacman (Arch)
 
 ```
 pacman -S rofi python python-dbus python-setproctitle python-xlib python-gobject gobject-introspection
-pacman -S appmenu-gtk-module
+```
+
+#### DNF (Fedora)
+```
+sudo dnf install rofi python3 python3-dbus python3-setproctitle python3-xlib appmenu-qt5 appmenu-qt6
 ```
 
 ### Manual Install
-
-* Either use the Global Menu widget, or add the App Menu button in to the titlebar.
-* Download `plasma-hud`
-
 ```
-git clone https://github.com/Zren/plasma-hud
+# Download
+git clone https://github.com/felagund/plasma-hud
 cd plasma-hud
-```
-
-* Install files
-
-```
+# Instal PLasma HUD
 sudo mkdir -p /usr/lib/plasma-hud
-sudo cp usr/lib/plasma-hud/plasma-hud /usr/lib/plasma-hud/
-sudo mkdir -p /etc/xdg/autostart
-sudo cp etc/xdg/autostart/plasma-hud.desktop /etc/xdg/autostart/
+sudo cp usr/lib/plasma-hud/plasma-hud /usr/lib/plasma-hud/plasma-hud
+sudo mkdir -p /usr/share/plasma-hud
+sudo cp usr/share/plasma-hud/breeze.rasi /usr/share/plasma-hud/breeze.rasi
+sudo cp usr/share/plasma-hud/kwin-plasma-hud-helper.js /usr/share/plasma-hud/kwin-plasma-hud-helper.js
+# Install the helper widget
+mkdir ~/.local/share/plasma/
+cp -pr usr/share/plasma/plasmoids/com.github.zren.PlasmaHUD/ ~/.local/share/plasma/plasmoids
+# Set up shortcuts
+cp net.local.launch_plasma_hud.sh.desktop ~/.local/share/applications/
+kwriteconfig6 --file ~/.config/kglobalshortcutsrc --group services --group net.local.launch_plasma_hud.sh.desktop --key _launch Alt
+# Enable through systemd
+cp plasma-hud.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable plasma-hud.service
+systemctl --user start plasma-hud.service
 ```
+Now add Plasma HUD widget to your panel. It will be invisible but currently is the only known way to acces manues on Wayland.
 
-* Either run the script in the terminal for plasma-hud to work in your current session. Or relog since it should now autostart the next time you login.
+Now either log off and on or restart kwin and plasma shell (after restarting kwin, invoke krunner with ALT+F2 to run commands) or run:
+```
+kwin --replace
+plasmashell --replace
+```
+Plasma HUD should not be bound to ALT and autostart via systemd (there is also /etc/zdg/autostart provided, byt systemd makes sure Plasma HUD gets restarted should it crash or something). There is also a `setup.py` but that only installs the program itself, not the helper files.
 
+You can also for testing run Plasma HUD with 
 ```
 /usr/lib/plasma-hud/plasma-hud
 ```
 
-* Run the following commands to bind the `Alt` keys. For Arch users, you will need `qt5-tools` installed to run `qdbus`.
-
+And invoke it with
 ```
-kwriteconfig5 --file ~/.config/kwinrc --group ModifierOnlyShortcuts --key Alt "com.github.zren.PlasmaHUD,/PlasmaHUD,com.github.zren.PlasmaHUD,toggleHUD"
-qdbus org.kde.KWin /KWin reconfigure
+qdbus com.github.zren.PlasmaHUD /PlasmaHUD com.github.zren.PlasmaHUD.toggleHUD
 ```
-
-* If you wish to bind to a normal shortcut key like `Menu` or `Alt+F1` then create a new custom global shortcut in the System Settings.
-    * System Settings > Shortcuts > Custom Shortcut
-    * Edit > New > Global Shorcut > D-Bus Command
-    * Trigger > Shortcut: `Menu`
-    * Action > Remote application: `com.github.zren.PlasmaHUD`
-    * Action > Remote object: `/PlasmaHUD`
-    * Action > Function: `toggleHUD`
-    * Action > Arguments: Leave it empty
 
 ### Manual Uninstall
-
-* Run the following commands to unbind the `Alt` keys.
-
 ```
-kwriteconfig5 --file ~/.config/kwinrc --group ModifierOnlyShortcuts --key Alt ""
-qdbus org.kde.KWin /KWin reconfigure
+systemctl --user disable plasma-hud.service
+systemctl --user stop plasma-hud.service
+kwriteconfig6 --file ~/.config/kglobalshortcutsrc --group services --group net.local.launch_plasma_hud.sh.desktop --key _launch --delete
+sudo rm /usr/lib/plasma-hud/plasma-hud /usr/share/plasma-hud/breeze.rasi /usr/share/plasma-hud/kwin-plasma-hud-helper.js
+rm ~/.local/share/plasma/plasmoids/com.github.zren.PlasmaHUD ~/.local/share/applications/net.local.launch_plasma_hud.sh.desktop ~/.config/systemd/user/plasma-hud.service
 ```
-
-* Uninstall files
-
-```
-sudo rm /usr/lib/plasma-hud/plasma-hud
-sudo rm /etc/xdg/autostart/plasma-hud.desktop
-```
-
 ## Settings
 
 If you manally create `~/.config/plasmahudrc` you can change any of the following settings.
