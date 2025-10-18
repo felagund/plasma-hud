@@ -737,7 +737,7 @@ class PlasmaHUD(dbus.service.Object):
 class WindowTracker():
     def __init__(self):
         display = Gdk.Display.get_default()
-        if 'GdkWaylandDisplay' in str(type(display)):
+        if os.environ.get('XDG_SESSION_TYPE', '').lower() == "wayland" or 'GdkWaylandDisplay' in str(type(display)):
             self.isPlatformWayland = True
             self.__HUDHelper = KWinPlasmaHUDHelper()
         else:
