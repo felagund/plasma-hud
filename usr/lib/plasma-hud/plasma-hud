@@ -545,10 +545,6 @@ def get_menu():
 
     return menu_result
 
-
-"""
-  try_dbusmenu_interface
-"""
 def try_dbusmenu_interface(wm_class, dbusmenu_bus, dbusmenu_object_path):
     # --- Get Appmenu Registrar DBus interface
     session_bus = dbus.SessionBus()
@@ -557,8 +553,8 @@ def try_dbusmenu_interface(wm_class, dbusmenu_bus, dbusmenu_object_path):
     try:
         dbusmenu_object = session_bus.get_object(dbusmenu_bus, dbusmenu_object_path)
         dbusmenu_object_iface = dbus.Interface(dbusmenu_object, 'com.canonical.dbusmenu')
-    except ValueError:
-        logging.info('Unable to access dbusmenu items.')
+    except (TypeError,ValueError):
+        logging.info('Unable to access dbusmenu items. Either the app reported as: "' + wm_class[0] + '" does not export its menu or we were unable to query kwin right.')
         return False
 
     # --- Valid menu, so init rofi process to capture keypresses.
