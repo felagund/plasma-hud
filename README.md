@@ -5,7 +5,9 @@ Provides a way to run menubar commands through
 Heads-Up Display (HUD). `plasma-hud` was forked from [`mate-hud`](https://github.com/ubuntu-mate/mate-hud) which was based on
 [`i3-hud-menu`](https://github.com/RafaelBocquet/i3-hud-menu). There's also a [`gnome-hud`](https://github.com/hardpixel/gnome-hud). This is a fork by uszie that works on Wayland. Update to Plasma 6 by Felagund.
 
-If you are interested in Unity's other feature, locally integrated menus in window titlebars, then that currently does not work on Wayland, but should be implemented soon: https://invent.kde.org/plasma/breeze/-/merge_requests/529 If you are still on X, you may want to check out the [Material KWin decoration](https://github.com/Zren/material-decoration) which has that feature.
+If you are interested in Unity's other features:
+  - locally integrated menus in (unmaximized) window titlebars, KDE is seeking to implement this natively: https://invent.kde.org/plasma/breeze/-/merge_requests/529 but in the meantime, you can use https://github.com/guiodic/material-decoration
+  - Windows control in maximized windows integrated to panel, use https://github.com/antroids/application-title-bar/
 
 ![](https://i.imgur.com/M3YUONc.png)
 ![](https://i.imgur.com/sE0i8IE.png)
@@ -37,7 +39,7 @@ pacman -S rofi python python-dbus python-setproctitle python-xlib python-gobject
 
 #### DNF (Fedora)
 ```
-sudo dnf install rofi python3 python3-dbus python3-setproctitle python3-xlib appmenu-qt5 appmenu-qt6
+sudo dnf install rofi python3 python3-dbus python3-setproctitle python3-xlib appmenu-qt5
 ```
 
 ### Manual Install
@@ -63,14 +65,13 @@ systemctl --user daemon-reload
 systemctl --user enable plasma-hud.service
 systemctl --user start plasma-hud.service
 ```
-Now add Plasma HUD widget to your panel. It will be invisible but currently is the only known way to acces manues on Wayland.
+Now add Plasma HUD widget to your panel. It will be invisible, but currently is the only known way to access menus on Wayland.
 
-Now either log off and on or restart kwin and plasma shell (after restarting kwin, invoke krunner with ALT+F2 to run commands) or run:
+Now either log off and on or restart Plasma:
 ```
-kwin --replace
 plasmashell --replace
 ```
-Plasma HUD should not be bound to ALT and autostart via systemd (there is also /etc/zdg/autostart provided, byt systemd makes sure Plasma HUD gets restarted should it crash or something). There is also a `setup.py` but that only installs the program itself, not the helper files.
+Plasma HUD should now be bound to Alt and autostart via systemd (there is also /etc/xdg/autostart provided, byt systemd makes sure Plasma HUD gets restarted should it crash or something). There is also a `setup.py` but that only installs the program itself, not the helper files.
 
 You can also for testing run Plasma HUD with 
 ```
@@ -92,7 +93,7 @@ rm ~/.local/share/plasma/plasmoids/com.github.zren.PlasmaHUD ~/.local/share/appl
 ```
 ## Settings
 
-If you manally create `~/.config/plasmahudrc` you can change any of the following settings.
+If you manually create `~/.config/plasmahudrc` you can change any of the following settings.
 
 ```
 [General]
